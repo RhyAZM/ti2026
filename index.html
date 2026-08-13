@@ -402,12 +402,26 @@
   }
 
   var lastOk = null;
-  function fetchScores(manualTrigger){
+  var API = 'https://api.opendota.com/api/proMatches';
+  var SOURCES = [
+    API,
+    'https://api.allorigins.win/raw?url=' + encodeURIComponent(API),
+    'https://corsproxy.io/?url=' + encodeURIComponent(API)
+  ];
+  function fetchOne(i){
+    return fetch(SOURCES[i]).then(function(r){ if(!r.ok) throw new Error('http '+r.status); return r.json(); });
+  }
+  function fetchChain(i){
+    return fetchOne(i).catch(function(e){
+      if(i+1 < SOURCES.length) return fetchChain(i+1);
+      throw e;
+    });
+  }
+  function fetchScores(){
     const btn = document.getElementById('refreshBtn');
     btn.classList.add('spin');
     if(!lastOk) setStatus('warn', 'Connecting to live data…');
-    fetch('https://api.opendota.com/api/proMatches')
-      .then(r=>{ if(!r.ok) throw new Error('http '+r.status); return r.json(); })
+    fetchChain(0)
       .then(function(data){
         auto = computeFromMatches(data);
         lastOk = new Date();
@@ -417,9 +431,9 @@
       })
       .catch(function(err){
         if(lastOk){
-          setStatus('warn', 'Live · last update <b>'+fmt(lastOk)+'</b> (retrying)');
+          setStatus('warn', 'Live · last update <b>'+fmt(lastOk)+'</b> (retrying…)');
         } else {
-          setStatus('err', 'Auto-update unavailable here — <b>open this file in a browser</b>, or tap a score to enter it manually');
+          setStatus('err', 'Couldn’t reach live data — an ad-blocker or your network may be blocking it. Tap a score to enter manually, or hit Refresh.');
         }
       })
       .finally(function(){ setTimeout(()=>btn.classList.remove('spin'), 400); });
