@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The International 2026 — Live Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0B0E13; --panel:#131924; --panel-2:#0F141C; --line:#232C39;
+    --steel:#C7CFD9; --steel-dim:#8B95A3; --muted:#5E6874;
+    --crimson:#E8413B; --crimson-dim:#7E2320; --gold:#E8B84B; --green:#4FB477;
+    --radius:4px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--ink); color:var(--steel);
+    font-family:'Inter',system-ui,sans-serif; line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(circle at 50% -10%, #16202e 0%, transparent 55%);
+  }
+  h1,h2,h3,.disp{font-family:'Oswald',sans-serif; text-transform:uppercase; letter-spacing:.04em; font-weight:600; color:#fff; line-height:1.05}
+  a{color:inherit}
+  .wrap{max-width:1080px; margin:0 auto; padding:0 20px}
+
+  .bar{position:sticky; top:0; z-index:50; background:rgba(9,12,17,.92); backdrop-filter:blur(8px); border-bottom:1px solid var(--line)}
+  .bar-in{display:flex; align-items:center; justify-content:space-between; gap:16px; height:56px}
+  .mark{display:flex; align-items:center; gap:10px; font-family:'Oswald'; font-weight:700; font-size:18px; letter-spacing:.06em; color:#fff}
+  .mark .ti{color:var(--crimson)}
+  .clocks{display:flex; align-items:center; gap:18px; font-family:'Oswald'; font-weight:400; letter-spacing:.05em; font-size:13px}
+  .clock b{display:block; font-size:15px; font-weight:600; color:#fff; letter-spacing:.06em}
+  .clock span{color:var(--muted); font-size:10px; text-transform:uppercase; letter-spacing:.12em}
+  .live-pill{display:inline-flex; align-items:center; gap:7px; background:var(--crimson-dim); color:#fff; font-family:'Oswald'; font-weight:600; font-size:12px; letter-spacing:.14em; padding:5px 11px; border-radius:2px; text-transform:uppercase}
+  .dot{width:8px; height:8px; border-radius:50%; background:var(--crimson); animation:pulse 1.3s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+
+  .hero{padding:54px 0 40px; border-bottom:1px solid var(--line); position:relative}
+  .eyebrow{font-family:'Oswald'; font-weight:500; letter-spacing:.32em; font-size:12px; color:var(--crimson); text-transform:uppercase; margin-bottom:14px}
+  .hero h1{font-size:clamp(44px,9vw,92px); font-weight:700; letter-spacing:.01em}
+  .hero h1 em{font-style:normal; -webkit-text-stroke:1px var(--steel-dim); color:transparent}
+  .subline{font-family:'Oswald'; font-weight:400; letter-spacing:.06em; font-size:clamp(15px,2.4vw,20px); color:var(--steel); margin-top:12px; text-transform:uppercase}
+  .subline .sep{color:var(--crimson); margin:0 10px}
+
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line); margin-top:34px; border-radius:var(--radius); overflow:hidden}
+  .stat{background:var(--panel-2); padding:18px 16px}
+  .stat .k{font-family:'Oswald'; font-weight:600; font-size:clamp(20px,3.4vw,30px); color:#fff; letter-spacing:.02em}
+  .stat .k.gold{color:var(--gold)}
+  .stat .l{font-size:11px; text-transform:uppercase; letter-spacing:.14em; color:var(--muted); margin-top:5px}
+
+  .phase{margin-top:22px; display:flex; align-items:center; gap:14px; flex-wrap:wrap; background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--crimson); border-radius:var(--radius); padding:14px 18px}
+  .phase .now{font-family:'Oswald'; font-weight:600; letter-spacing:.06em; color:#fff; font-size:16px; text-transform:uppercase}
+  .phase .cd{margin-left:auto; font-family:'Oswald'; font-size:13px; color:var(--steel-dim); letter-spacing:.05em}
+  .phase .cd b{color:var(--gold); font-weight:600}
+
+  section{padding:44px 0; border-bottom:1px solid var(--line)}
+  .sec-head{display:flex; align-items:baseline; gap:14px; margin-bottom:24px}
+  .sec-head h2{font-size:clamp(22px,4vw,30px)}
+  .sec-head .num{font-family:'Oswald'; font-weight:700; color:var(--crimson); font-size:14px; letter-spacing:.1em}
+  .sec-head .hint{margin-left:auto; font-size:12px; color:var(--muted); letter-spacing:.04em; text-transform:uppercase; font-family:'Oswald'}
+
+  .watch{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px}
+  .wbtn{display:flex; align-items:center; gap:13px; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:16px 18px; text-decoration:none; transition:.18s; cursor:pointer}
+  .wbtn:hover{border-color:var(--crimson); background:#161d29; transform:translateY(-2px)}
+  .wbtn .ic{width:38px;height:38px;flex:none;border-radius:3px;display:grid;place-items:center;font-family:'Oswald';font-weight:700;font-size:17px;color:#fff}
+  .wbtn .tw{background:#6441a5} .wbtn .yt{background:#c8281f} .wbtn .of{background:#1f2b3a;border:1px solid var(--line)} .wbtn .lq{background:#2a5c8a}
+  .wbtn b{display:block;font-family:'Oswald';font-weight:600;letter-spacing:.05em;font-size:15px;color:#fff;text-transform:uppercase}
+  .wbtn small{color:var(--muted);font-size:11px;letter-spacing:.04em}
+  .wbtn .go{margin-left:auto;color:var(--steel-dim)}
+
+  .status{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:11px 16px;margin-bottom:18px;font-size:12px}
+  .status .sdot{width:8px;height:8px;border-radius:50%;background:var(--green);flex:none}
+  .status .sdot.warn{background:var(--gold)} .status .sdot.err{background:var(--crimson)}
+  .status .stxt{color:var(--steel-dim);letter-spacing:.02em}
+  .status .stxt b{color:var(--steel)}
+  .status .refresh{margin-left:auto;background:none;border:1px solid var(--line);color:var(--steel-dim);font-family:'Oswald';font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:6px 12px;border-radius:2px;cursor:pointer;display:flex;align-items:center;gap:6px}
+  .status .refresh:hover{border-color:var(--gold);color:var(--gold)}
+  .status .refresh.spin{opacity:.6;pointer-events:none}
+
+  .rnd-label{font-family:'Oswald';font-weight:500;letter-spacing:.18em;font-size:11px;color:var(--steel-dim);text-transform:uppercase;margin:0 0 10px}
+  .board{display:grid;gap:8px;margin-bottom:22px}
+  .m{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:13px 16px;transition:.15s}
+  .m:hover{border-color:#33404f}
+  .m .t{font-family:'Oswald';font-weight:500;letter-spacing:.03em;font-size:16px;color:#fff;text-transform:uppercase;display:flex;align-items:center;gap:7px;transition:.15s}
+  .m .t.r{justify-content:flex-end;text-align:right}
+  .m .t .fav{color:var(--gold);font-size:11px}
+  .m .t.win{color:var(--green)}
+  .m .t.lose{color:var(--steel-dim);opacity:.65}
+  .m .vs{position:relative;display:flex;align-items:center;gap:9px;background:var(--panel-2);border:1px solid var(--line);border-radius:2px;padding:5px 12px;font-family:'Oswald';font-weight:600;cursor:pointer;transition:.15s;min-height:34px}
+  .m .vs:hover{border-color:var(--gold)}
+  .m .vs .s{color:#fff;font-size:18px;min-width:12px;text-align:center}
+  .m .vs .s.hi{color:var(--green)}
+  .m .vs .d{color:var(--muted);font-size:11px;letter-spacing:.1em}
+  .m .vs.empty{color:var(--steel-dim);font-size:10px;font-weight:500;letter-spacing:.12em;padding:8px 12px}
+  .m .vs .tag{position:absolute;top:-8px;right:-6px;font-family:'Oswald';font-weight:600;font-size:8px;letter-spacing:.08em;padding:1px 4px;border-radius:2px}
+  .m .vs .tag.auto{background:var(--crimson-dim);color:#fff} .m .vs .tag.edit{background:#2a5c8a;color:#fff}
+  .m .vs input{width:30px;background:var(--ink);border:1px solid var(--line);color:#fff;font-family:'Oswald';font-weight:600;font-size:16px;text-align:center;border-radius:2px;padding:3px 0}
+  .m .vs input:focus{outline:none;border-color:var(--gold)}
+  .m .vs .ok{background:var(--green);border:none;color:#08130d;font-family:'Oswald';font-weight:700;font-size:11px;padding:4px 8px;border-radius:2px;cursor:pointer;letter-spacing:.06em}
+  .legend{font-size:11px;color:var(--muted);letter-spacing:.03em;display:flex;gap:16px;flex-wrap:wrap}
+  .legend b{color:var(--gold)}
+  .reset{background:none;border:1px solid var(--line);color:var(--steel-dim);font-family:'Oswald';font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:6px 12px;border-radius:2px;cursor:pointer;margin-top:14px}
+  .reset:hover{border-color:var(--crimson);color:var(--crimson)}
+
+  .tl{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .tl .step{background:var(--panel-2);padding:18px 16px;position:relative}
+  .tl .step .d{font-family:'Oswald';font-weight:600;color:var(--crimson);font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+  .tl .step h3{font-size:17px;margin:6px 0 7px}
+  .tl .step p{font-size:13px;color:var(--steel-dim);line-height:1.5}
+
+  .teams{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+  .team{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:13px 14px;display:flex;flex-direction:column;gap:3px;transition:.15s}
+  .team:hover{border-color:#33404f;background:#161d29}
+  .team .n{font-family:'Oswald';font-weight:600;letter-spacing:.03em;color:#fff;font-size:15px;text-transform:uppercase}
+  .team .q{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .team.inv .q{color:var(--gold)}
+  .team .alt{font-size:11px;color:var(--steel-dim);font-style:italic}
+  .champ-tag{display:inline-block;font-family:'Oswald';font-weight:600;font-size:9px;letter-spacing:.1em;background:var(--crimson-dim);color:#fff;padding:2px 6px;border-radius:2px;text-transform:uppercase;width:fit-content;margin-top:2px}
+
+  footer{padding:34px 0 46px}
+  footer .note{font-size:12px;color:var(--muted);line-height:1.7;max-width:780px}
+  footer .note b{color:var(--steel-dim)}
+  footer .up{font-family:'Oswald';font-size:11px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-top:16px}
+
+  @media (max-width:640px){
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .clocks .clock:first-child{display:none}
+    .m .t{font-size:13px}
+    .hero{padding:38px 0 30px}
+  }
+  @media (prefers-reduced-motion:reduce){.dot{animation:none}.wbtn:hover{transform:none}}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <div class="wrap bar-in">
+    <div class="mark"><span class="ti">TI</span> THE INTERNATIONAL 15</div>
+    <div class="clocks">
+      <div class="clock"><b id="cSh">--:--</b><span>Shanghai</span></div>
+      <div class="clock"><b id="cLo">--:--</b><span>Your time</span></div>
+      <span class="live-pill"><span class="dot"></span> Live</span>
+    </div>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Dota 2 World Championship · Shanghai, China</div>
+    <h1>The<br>International <em>2026</em></h1>
+    <div class="subline">Aug 13 – 23 <span class="sep">/</span> Oriental Sports Center <span class="sep">/</span> Aegis of Champions</div>
+
+    <div class="stats">
+      <div class="stat"><div class="k">16</div><div class="l">Teams</div></div>
+      <div class="stat"><div class="k gold">$2.87M</div><div class="l">Prize pool</div></div>
+      <div class="stat"><div class="k">8</div><div class="l">Playoff slots</div></div>
+      <div class="stat"><div class="k">15th</div><div class="l">Edition</div></div>
+    </div>
+
+    <div class="phase">
+      <span class="now" id="phaseNow">Group Stage · Day 1</span>
+      <span class="cd" id="phaseCd">Main Event begins <b>Aug 20</b></span>
+    </div>
+  </div>
+</header>
+
+<section id="watch">
+  <div class="wrap">
+    <div class="sec-head"><span class="num">01</span><h2>Watch live</h2><span class="hint">Official broadcasts</span></div>
+    <div class="watch">
+      <a class="wbtn" href="https://www.twitch.tv/dota2ti" target="_blank" rel="noopener">
+        <span class="ic tw">T</span><span><b>Twitch</b><small>dota2ti · English</small></span><span class="go">↗</span>
+      </a>
+      <a class="wbtn" href="https://www.youtube.com/@dota2" target="_blank" rel="noopener">
+        <span class="ic yt">▶</span><span><b>YouTube</b><small>Official Dota 2</small></span><span class="go">↗</span>
+      </a>
+      <a class="wbtn" href="https://www.dota2.com/esports/" target="_blank" rel="noopener">
+        <span class="ic of">D</span><span><b>In client</b><small>dota2.com · Watch tab</small></span><span class="go">↗</span>
+      </a>
+      <a class="wbtn" href="https://liquipedia.net/dota2/The_International/2026/Group_Stage" target="_blank" rel="noopener">
+        <span class="ic lq">L</span><span><b>Live scores</b><small>Liquipedia tracker</small></span><span class="go">↗</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section id="matches">
+  <div class="wrap">
+    <div class="sec-head"><span class="num">02</span><h2>Round 1 board</h2><span class="hint">Best of 3</span></div>
+
+    <div class="status">
+      <span class="sdot" id="sdot"></span>
+      <span class="stxt" id="stxt">Connecting to live data…</span>
+      <button class="refresh" id="refreshBtn"><span>↻</span> Refresh now</button>
+    </div>
+
+    <p class="rnd-label">Wave 1 · started ~02:00 UTC</p>
+    <div class="board" id="wave1"></div>
+
+    <p class="rnd-label">Wave 2 · started ~05:00 UTC</p>
+    <div class="board" id="wave2"></div>
+
+    <div class="legend">
+      <span><b>★</b> pre-match favorite</span>
+      <span><b style="color:var(--crimson)">AUTO</b> = from live data · <b style="color:#5a9cd8">EDIT</b> = your manual entry</span>
+    </div>
+    <button class="reset" id="resetBtn">Clear my manual edits</button>
+  </div>
+</section>
+
+<section id="format">
+  <div class="wrap">
+    <div class="sec-head"><span class="num">03</span><h2>How it works</h2></div>
+    <div class="tl">
+      <div class="step"><div class="d">Aug 13–16</div><h3>Swiss Group Stage</h3><p>16 teams, all Bo3. Top 3 advance straight to the Main Event. Bottom 3 are eliminated.</p></div>
+      <div class="step"><div class="d">Aug 16</div><h3>Elimination Round</h3><p>Teams seeded 4th–13th get one more shot. Five survive; five go home.</p></div>
+      <div class="step"><div class="d">Aug 20–23</div><h3>Main Event</h3><p>8 teams, double elimination. One loss drops you to the lower bracket, not out.</p></div>
+      <div class="step"><div class="d">Aug 23</div><h3>Grand Final</h3><p>Best of 5 for the Aegis of Champions and the winner’s share of the prize pool.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="teams">
+  <div class="wrap">
+    <div class="sec-head"><span class="num">04</span><h2>The 16 teams</h2><span class="hint">7 invited · 9 qualified</span></div>
+    <div class="teams" id="teamGrid"></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="note">
+      <b>How the live board works:</b> scores are pulled automatically from the public OpenDota API and refresh every 45 seconds. OpenDota records each game a few minutes after it <b>ends</b>, so the board is near-live — completed maps appear within minutes, but in-progress maps and the to-the-second broadcast will always be ahead of it. Use the Twitch / YouTube stream or the Dota 2 client for real-time viewing. Auto-fetch needs an internet connection and only runs when the file is opened in a normal browser (not inside a chat preview). You can always tap a score to enter or correct it manually — your edits take priority over the auto data.
+    </p>
+    <p class="up" id="stamp">Auto-updating via OpenDota · Aug 13, 2026</p>
+  </div>
+</footer>
+
+<script>
+  function fmt(d){return d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', hour12:false});}
+  function tick(){
+    const now = new Date();
+    const sh = new Date(now.toLocaleString('en-US', {timeZone:'Asia/Shanghai'}));
+    document.getElementById('cSh').textContent = fmt(sh);
+    document.getElementById('cLo').textContent = fmt(now);
+  }
+  tick(); setInterval(tick, 1000);
+
+  (function(){
+    const now = new Date(); const y = 2026;
+    const nowEl = document.getElementById('phaseNow');
+    const cdEl = document.getElementById('phaseCd');
+    const main = new Date(y,7,20), end = new Date(y,7,24);
+    if(now>=new Date(y,7,13) && now<new Date(y,7,17)) nowEl.textContent='Group Stage · in progress';
+    else if(now>=main && now<end) nowEl.textContent='Main Event · in progress';
+    else if(now>=end) nowEl.textContent='Tournament concluded';
+    if(now < main){
+      const days = Math.ceil((main - now)/86400000);
+      cdEl.innerHTML = 'Main Event in <b>'+days+' day'+(days===1?'':'s')+'</b>';
+    } else if(now < end){ cdEl.innerHTML = 'Grand Final <b>Aug 23</b>'; }
+    else { cdEl.innerHTML = 'Champions crowned <b>Aug 23</b>'; }
+  })();
+
+  var mem = {};
+  const store = {
+    get(){ try{ return JSON.parse(localStorage.getItem('ti26manual')||'{}'); }catch(e){ return mem; } },
+    set(o){ mem=o; try{ localStorage.setItem('ti26manual', JSON.stringify(o)); }catch(e){} }
+  };
+
+  const norm = s => (s||'').toLowerCase().replace(/[^a-z0-9]/g,'').trim();
+  const ALIAS = {
+    falcons:['team falcons','falcons'],
+    lgd:['lgd gaming','lgd','psglgd'],
+    nigma:['nigma galaxy','nigma'],
+    ironwing:['iron wing','1win','1w team','tundra','tundra esports'],
+    boomboys:['boomboys','betboom','betboom team'],
+    og:['og'],
+    vision:['team vision','vision','parivision'],
+    resilience:['team resilience','resilience'],
+    spirit:['team spirit','spirit'],
+    xtreme:['xtreme gaming','xtreme','xg'],
+    liquid:['team liquid','liquid'],
+    vici:['vici gaming','vici','vg'],
+    aurora:['aurora gaming','aurora'],
+    gamerlegion:['gamerlegion','gamer legion'],
+    yandex:['team yandex','yandex'],
+    huligani:['huligani','l1ga','l1ga team']
+  };
+  const aliasSet = {};
+  Object.keys(ALIAS).forEach(k=>{ aliasSet[k] = ALIAS[k].map(norm); });
+  function keyFor(name){
+    const n = norm(name);
+    for(const k in aliasSet){ if(aliasSet[k].indexOf(n)>=0) return k; }
+    return null;
+  }
+
+  const w1 = [
+    {id:'flcn-lgd', a:'Team Falcons', b:'LGD Gaming', ka:'falcons', kb:'lgd', fav:'a'},
+    {id:'ngx-iw', a:'Nigma Galaxy', b:'Iron Wing', ka:'nigma', kb:'ironwing', fav:null},
+    {id:'bb-og', a:'BoomBoys', b:'OG', ka:'boomboys', kb:'og', fav:'a'},
+    {id:'vis-tr', a:'TEAM VISION', b:'Team Resilience', ka:'vision', kb:'resilience', fav:'a'}
+  ];
+  const w2 = [
+    {id:'ts-xg', a:'Team Spirit', b:'Xtreme Gaming', ka:'spirit', kb:'xtreme', fav:null},
+    {id:'liq-vg', a:'Team Liquid', b:'Vici Gaming', ka:'liquid', kb:'vici', fav:'a'},
+    {id:'aur-gl', a:'Aurora Gaming', b:'GamerLegion', ka:'aurora', kb:'gamerlegion', fav:'a'},
+    {id:'ynd-hul', a:'Team Yandex', b:'HULIGANI', ka:'yandex', kb:'huligani', fav:'a'}
+  ];
+  const all = w1.concat(w2);
+  const star = s => s ? ' <span class="fav">★</span>' : '';
+
+  var auto = {};
+
+  function dataFor(m){
+    const manual = store.get();
+    if(manual[m.id]) return {sc:manual[m.id], src:'edit'};
+    if(auto[m.id]) return {sc:auto[m.id], src:'auto'};
+    return null;
+  }
+
+  function render(m, el){
+    const d = dataFor(m);
+    const sc = d ? d.sc : null;
+    const aClass = 't r' + (sc ? (sc.a>sc.b?' win':(sc.a<sc.b?' lose':'')) : '');
+    const bClass = 't' + (sc ? (sc.b>sc.a?' win':(sc.b<sc.a?' lose':'')) : '');
+    let mid;
+    if(sc){
+      const tag = '<span class="tag '+(d.src==='auto'?'auto':'edit')+'">'+(d.src==='auto'?'AUTO':'EDIT')+'</span>';
+      mid = '<div class="vs" data-id="'+m.id+'">'+tag+
+        '<span class="s'+(sc.a>sc.b?' hi':'')+'">'+sc.a+'</span>'+
+        '<span class="d">–</span>'+
+        '<span class="s'+(sc.b>sc.a?' hi':'')+'">'+sc.b+'</span></div>';
+    } else {
+      mid = '<div class="vs empty" data-id="'+m.id+'">＋ ADD SCORE</div>';
+    }
+    el.innerHTML =
+      '<div class="'+aClass+'">'+m.a+star(m.fav==='a')+'</div>'+mid+
+      '<div class="'+bClass+'">'+star(m.fav==='b')+m.b+'</div>';
+    el.querySelector('.vs').addEventListener('click', function(){ openEdit(m, el); });
+  }
+
+  function openEdit(m, el){
+    const manual = store.get(); const d = dataFor(m);
+    const cur = d ? d.sc : {a:'',b:''};
+    const vs = el.querySelector('.vs');
+    vs.classList.remove('empty');
+    vs.innerHTML = '<input type="number" min="0" max="3" value="'+cur.a+'">'+
+      '<span class="d">–</span>'+
+      '<input type="number" min="0" max="3" value="'+cur.b+'">'+
+      '<button class="ok">SAVE</button>';
+    const inputs = vs.querySelectorAll('input');
+    inputs[0].focus();
+    function save(){
+      const a = parseInt(inputs[0].value);
+      const b = parseInt(inputs[1].value);
+      const mm = store.get();
+      if(isNaN(a)||isNaN(b)){ delete mm[m.id]; } else { mm[m.id]={a:a,b:b}; }
+      store.set(mm); render(m, el);
+    }
+    vs.querySelector('.ok').addEventListener('click', function(e){ e.stopPropagation(); save(); });
+    inputs.forEach(function(inp){
+      inp.addEventListener('click', function(e){ e.stopPropagation(); });
+      inp.addEventListener('keydown', function(e){ if(e.key==='Enter') save(); });
+    });
+    vs.addEventListener('click', function(e){ e.stopPropagation(); });
+  }
+
+  function build(){
+    const b1 = document.getElementById('wave1'); const b2 = document.getElementById('wave2');
+    b1.innerHTML=''; b2.innerHTML='';
+    w1.forEach(function(m){ const el=document.createElement('div'); el.className='m'; b1.appendChild(el); render(m, el); });
+    w2.forEach(function(m){ const el=document.createElement('div'); el.className='m'; b2.appendChild(el); render(m, el); });
+  }
+
+  function setStatus(state, text){
+    const dot = document.getElementById('sdot'); const txt = document.getElementById('stxt');
+    dot.className = 'sdot' + (state==='warn'?' warn':(state==='err'?' err':''));
+    txt.innerHTML = text;
+  }
+
+  function computeFromMatches(matches){
+    const tally = {};
+    all.forEach(m=>{ tally[m.id]={a:0,b:0}; });
+    matches.forEach(function(g){
+      if(!g || !g.league_name || !/international/i.test(g.league_name)) return;
+      const kr = keyFor(g.radiant_name), kd = keyFor(g.dire_name);
+      if(!kr || !kd) return;
+      const winnerKey = g.radiant_win ? kr : kd;
+      for(const m of all){
+        if((kr===m.ka && kd===m.kb) || (kr===m.kb && kd===m.ka)){
+          if(winnerKey===m.ka) tally[m.id].a++;
+          else if(winnerKey===m.kb) tally[m.id].b++;
+          break;
+        }
+      }
+    });
+    const out = {};
+    for(const id in tally){ if(tally[id].a>0 || tally[id].b>0) out[id]=tally[id]; }
+    return out;
+  }
+
+  var lastOk = null;
+  function fetchScores(manualTrigger){
+    const btn = document.getElementById('refreshBtn');
+    btn.classList.add('spin');
+    if(!lastOk) setStatus('warn', 'Connecting to live data…');
+    fetch('https://api.opendota.com/api/proMatches')
+      .then(r=>{ if(!r.ok) throw new Error('http '+r.status); return r.json(); })
+      .then(function(data){
+        auto = computeFromMatches(data);
+        lastOk = new Date();
+        build();
+        const n = Object.keys(auto).length;
+        setStatus('ok', 'Live · updated <b>'+fmt(lastOk)+'</b> · '+n+' of 8 series found');
+      })
+      .catch(function(err){
+        if(lastOk){
+          setStatus('warn', 'Live · last update <b>'+fmt(lastOk)+'</b> (retrying)');
+        } else {
+          setStatus('err', 'Auto-update unavailable here — <b>open this file in a browser</b>, or tap a score to enter it manually');
+        }
+      })
+      .finally(function(){ setTimeout(()=>btn.classList.remove('spin'), 400); });
+  }
+
+  build();
+  fetchScores(false);
+  setInterval(function(){ fetchScores(false); }, 45000);
+  document.getElementById('refreshBtn').addEventListener('click', function(){ fetchScores(true); });
+  document.getElementById('resetBtn').addEventListener('click', function(){ store.set({}); build(); });
+
+  const teams = [
+    {n:'Team Spirit', q:'Qualifier', champ:true},
+    {n:'Team Falcons', q:'Invited'},
+    {n:'TEAM VISION', q:'Qualifier', alt:'Parivision'},
+    {n:'Xtreme Gaming', q:'Invited'},
+    {n:'BoomBoys', q:'Invited', alt:'BetBoom'},
+    {n:'Team Liquid', q:'Invited'},
+    {n:'Aurora Gaming', q:'Invited'},
+    {n:'Team Yandex', q:'Invited'},
+    {n:'Iron Wing', q:'Invited', alt:'ex-Tundra / 1win'},
+    {n:'LGD Gaming', q:'Qualifier'},
+    {n:'Team Resilience', q:'Qualifier'},
+    {n:'Vici Gaming', q:'Qualifier'},
+    {n:'OG', q:'Qualifier'},
+    {n:'Nigma Galaxy', q:'Qualifier'},
+    {n:'GamerLegion', q:'Qualifier'},
+    {n:'HULIGANI', q:'Qualifier', alt:'L1GA'}
+  ];
+  const grid = document.getElementById('teamGrid');
+  teams.forEach(function(t){
+    const el = document.createElement('div');
+    el.className = 'team' + (t.q==='Invited'?' inv':'');
+    el.innerHTML = '<span class="n">'+t.n+'</span>'+
+      (t.alt?'<span class="alt">'+t.alt+'</span>':'')+
+      '<span class="q">'+t.q+'</span>'+
+      (t.champ?'<span class="champ-tag">TI14 Champion</span>':'');
+    grid.appendChild(el);
+  });
+</script>
+</body>
+</html>
